@@ -8,6 +8,7 @@ import io.minio.PutObjectArgs;
 import net.sourceforge.tess4j.ITesseract;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.hazelcast.jet.pipeline.Pipeline;
@@ -41,6 +42,10 @@ public class EmpleadorService {
     private ITesseract tesseract;
     @Autowired
     private KafkaConfig kafkaConfig;
+
+    @Autowired
+    private KafkaTemplate<String, Empleador> kafkaTemplate;
+
     @Value("${minion.endpoint}")
     private String minionEndpoint;
 
@@ -69,31 +74,6 @@ public class EmpleadorService {
             empleador.setId(empleadorId);
             empleador.setPdfUrl("url");
             empleador.setMetadatosDocumento(ocrResult);
-           // empleador.setFechaSolicitud(now);
-            /*empleador.setTipoInscripcion("tipoInscripcionValue");
-            empleador.setActividadComercial("actividadComercialValue");
-            empleador.setEmpleadorDomestico("empleadorDomesticoValue");
-            empleador.setTipoEmpresa("tipoEmpresaValue");
-            empleador.setRuc("rucValue");
-            empleador.setTipoDocumento("tipoDocumentoValue");
-            empleador.setNumeroDocumento("numeroDocumentoValue");
-            empleador.setIdDocumento("idDocumentoValue");
-            empleador.setDigitoVerificacion(123); // Asigna el valor deseado
-            empleador.setCasilla("casillaValue");
-            empleador.setRazonSocial("razonSocialValue");
-            empleador.setNombreComercial("nombreComercialValue");
-            empleador.setFechaInicioLabores(LocalDate.now()); // Asigna la fecha actual
-            empleador.setLocalizacionGeografica("localizacionGeograficaValue");
-            empleador.setDireccionEstablecimiento("direccionEstablecimientoValue");
-            empleador.setApartadoEstablecimiento(456); // Asigna el valor deseado
-            empleador.setTelefonoPrincipal("telefonoPrincipalValue");
-            empleador.setTelefonoAlterno("telefonoAlternoValue");
-            empleador.setCelular("celularValue");
-            empleador.setFax("faxValue");
-            empleador.setCorreoElectronico("correoElectronicoValue");
-            empleador.setPaginaWeb("paginaWebValue");
-            empleador.setAgenciaSolicitudInscripcion("agenciaSolicitudInscripcionValue");
-            empleador.setNumeroAvisoOperacion(789); // Asigna el valor deseado*/
             empleador.setId(empleadorId);
             empleador.setPdfUrl(pdfUrl);
             empleador.setMetadatosDocumento(ocrResult);
@@ -109,7 +89,6 @@ public class EmpleadorService {
             empleador.setRazonSocial(empleador.getRazonSocial());
             empleador.setNombreComercial(empleador.getNombreComercial());
             empleador.setFechaInicioLabores(empleador.getFechaInicioLabores());
-
             empleador.setLocalizacionGeografica(empleador.getLocalizacionGeografica());
             empleador.setDireccionEstablecimiento(empleador.getDireccionEstablecimiento());
             empleador.setApartadoEstablecimiento(empleador.getApartadoEstablecimiento());
@@ -124,6 +103,7 @@ public class EmpleadorService {
 
 
             empleadorRepository.save(empleador);
+         //   kafkaTemplate.send("my_topic", empleador); // Agregado
             return empleador;
         } catch (Exception e) {
            // System.err.println("Error al procesar y guardar el empleador: " + e.getMessage());
