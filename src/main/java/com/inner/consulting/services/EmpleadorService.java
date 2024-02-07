@@ -3,6 +3,7 @@ package com.inner.consulting.services;
 import com.inner.consulting.config.KafkaConfig;
 import com.inner.consulting.repositories.EmpleadorRepository;
 import com.inner.consulting.entities.Empleador;
+import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import net.sourceforge.tess4j.ITesseract;
@@ -56,14 +57,19 @@ public class EmpleadorService {
         try {
             UUID empleadorId = UUID.randomUUID();
             String pdfName = empleadorId + "-" + pdfFile.getOriginalFilename();
+            String folderName = empleador.getNombreComercial();
+            minioClient.makeBucket(MakeBucketArgs.builder().bucket(folderName).build());
             // subir archivos a minion
             minioClient.putObject(
                     PutObjectArgs.builder()
-                            .bucket(minionBucketName)
+                            .bucket(folderName)
                             .object(pdfName)
                             .stream(pdfFile.getInputStream(), pdfFile.getSize(), -1)
                             .contentType(pdfFile.getContentType())
                             .build());
+
+            // Generar la URL del PDF
+           // String pdfUrl = minionEndpoint + "/" + folderName + "/" + pdfName;
             // generar la url del pdf
             String pdfUrl = minionEndpoint + "/" + minionBucketName + "/" + pdfName;
             // Procesar el PDF con Tesseract
