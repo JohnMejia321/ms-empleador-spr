@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Inner consulting</title>
+  <!-- Agregar CSS de Bootstrap -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+  <h1 class="mt-4 mb-4">Formulario inscripción de empleador</h1>
+  <form action="/agregar-empleador" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="pdfFile">PDF File:</label>
+      <input type="file" id="pdfFile" name="pdfFile" accept="application/pdf" required class="form-control-file">
+    </div>
+
+    <div class="form-group">
+      <label for="tipoInscripcion">Tipo de Inscripción:</label>
+      <input type="text" id="tipoInscripcion" name="tipoInscripcion" required class="form-control">
+    </div>
+
+
+    <div class="form-group">
+      <label for="tipoEmpresa">Tipo de Empresa:</label>
+      <input type="text" id="tipoEmpresa" name="tipoEmpresa" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="ruc">RUC:</label>
+      <input type="text" id="ruc" name="ruc" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="tipoDocumento">Tipo de Documento:</label>
+      <input type="text" id="tipoDocumento" name="tipoDocumento" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="numeroDocumento">Número de Documento:</label>
+      <input type="text" id="numeroDocumento" name="numeroDocumento" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="idDocumento">ID del Documento:</label>
+      <input type="text" id="idDocumento" name="idDocumento" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="digitoVerificacion">Digito de Verificación:</label>
+      <input type="number" id="digitoVerificacion" name="digitoVerificacion" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="casilla">Casilla:</label>
+      <input type="text" id="casilla" name="casilla" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="razonSocial">Razón Social:</label>
+      <input type="text" id="razonSocial" name="razonSocial" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="nombreComercial">Nombre Comercial:</label>
+      <input type="text" id="nombreComercial" name="nombreComercial" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="fechaInicioLabores">Fecha de Inicio de Labores:</label>
+      <input type="text" id="fechaInicioLabores" name="fechaInicioLabores" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="localizacionGeografica">Localización Geográfica:</label>
+      <input type="text" id="localizacionGeografica" name="localizacionGeografica" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="direccionEstablecimiento">Dirección del Establecimiento:</label>
+      <input type="text" id="direccionEstablecimiento" name="direccionEstablecimiento" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="apartadoEstablecimiento">Apartado del Establecimiento:</label>
+      <input type="number" id="apartadoEstablecimiento" name="apartadoEstablecimiento" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="telefonoPrincipal">Teléfono Principal:</label>
+      <input type="text" id="telefonoPrincipal" name="telefonoPrincipal" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="telefonoAlterno">Teléfono Alterno:</label>
+      <input type="text" id="telefonoAlterno" name="telefonoAlterno" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="celular">Celular:</label>
+      <input type="text" id="celular" name="celular" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="fax">Fax:</label>
+      <input type="text" id="fax" name="fax" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="correoElectronico">Correo Electrónico:</label>
+      <input type="email" id="correoElectronico" name="correoElectronico" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="paginaWeb">Página Web:</label>
+      <input type="url" id="paginaWeb" name="paginaWeb" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="agenciaSolicitudInscripcion">Agencia de Solicitud de Inscripción:</label>
+      <input type="text" id="agenciaSolicitudInscripcion" name="agenciaSolicitudInscripcion" required class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="numeroAvisoOperacion">Número de Aviso de Operación:</label>
+      <input type="number" id="numeroAvisoOperacion" name="numeroAvisoOperacion" required class="form-control">
+    </div>
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Enviar</button>
+    </div>
+  </form>
+</div>
+</body>
+</html>
