@@ -21,6 +21,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.pipeline.Sources;
 import com.hazelcast.jet.pipeline.BatchStage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -57,10 +58,27 @@ public class EmpleadorService {
         try {
             UUID empleadorId = UUID.randomUUID();
             String pdfName = empleadorId + "-" + pdfFile.getOriginalFilename();
-           // String folderName = empleador.getNombreComercial();
+            String jsonName = pdfName.replace(".pdf", ".json");
             String folderName = transformFolderName(empleador.getNombreComercial());
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(folderName).build());
-            // subir archivos a minion
+
+            // Crear un archivo JSON temporal
+            Path tempJsonPath = Files.createTempFile("temp-json", ".json");
+            // Escribir el contenido del JSON en el archivo temporal
+            try (FileWriter fileWriter = new FileWriter(tempJsonPath.toFile())) {
+                fileWriter.write( procesarPDF(pdfFile.getInputStream()));
+            }
+
+            // Subir el archivo JSON temporal a MinIO
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(folderName)
+                            .object(jsonName)
+                            .stream(Files.newInputStream(tempJsonPath), Files.size(tempJsonPath), -1)
+                            .contentType("application/json")
+                            .build());
+
+            // Subir el archivo PDF a MinIO
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(folderName)
@@ -70,17 +88,16 @@ public class EmpleadorService {
                             .build());
 
             // Generar la URL del PDF
-           // String pdfUrl = minionEndpoint + "/" + folderName + "/" + pdfName;
-            // generar la url del pdf
             String pdfUrl = minionEndpoint + "/" + minionBucketName + "/" + pdfName;
+
+            // Obtener la URL del archivo JSON
+            String jsonUrl = minionEndpoint + "/" + minionBucketName + "/" + jsonName;
+
             // Procesar el PDF con Tesseract
             String ocrResult = procesarPDF(pdfFile.getInputStream());
             Logger.getLogger(EmpleadorService.class.getName()).info("Texto extraído del PDF: " + ocrResult);
-           // Empleador empleador = new Empleador(empleadorId, nombre, apellido, pdfUrl, ocrResult);
+
             Instant now = Instant.now();
-            empleador.setId(empleadorId);
-            empleador.setPdfUrl("url");
-            empleador.setMetadatosDocumento(ocrResult);
             empleador.setId(empleadorId);
             empleador.setPdfUrl(pdfUrl);
             empleador.setMetadatosDocumento(ocrResult);
@@ -108,12 +125,10 @@ public class EmpleadorService {
             empleador.setAgenciaSolicitudInscripcion(empleador.getAgenciaSolicitudInscripcion());
             empleador.setNumeroAvisoOperacion(empleador.getNumeroAvisoOperacion());
 
-
             empleadorRepository.save(empleador);
-         //   kafkaTemplate.send("my_topic", empleador); // Agregado
+
             return empleador;
         } catch (Exception e) {
-           // System.err.println("Error al procesar y guardar el empleador: " + e.getMessage());
             Logger.getLogger("Error al procesar y guardar el empleador: " + e.getMessage());
             throw e;
         }
@@ -165,12 +180,6 @@ public class EmpleadorService {
                     .setName("Map String to JSON Object")
                     .setLocalParallelism(1);
             Properties props = kafkaConfig.producerProperties();
-            // Properties props = new Properties();
-            // props.setProperty("bootstrap.servers", "localhost:9092");
-            // props.setProperty("key.serializer",
-            // StringSerializer.class.getCanonicalName());
-            // props.setProperty("value.serializer",
-            // StringSerializer.class.getCanonicalName());
             jsonEntries
                     .writeTo(KafkaSinks.kafka(props, "my_topic"));
             jsonEntries.peek()
@@ -186,8 +195,7 @@ public class EmpleadorService {
             Files.delete(tempPdfPath);
             return ocrResult;
         } catch (Exception e) {
-           // System.err.println("Error al procesar el PDF con Tesseract: " + e.getMessage());
-                Logger.getLogger("Error al procesar el PDF con Tesseract: " + e.getMessage());
+            Logger.getLogger("Error al procesar el PDF con Tesseract: " + e.getMessage());
             throw e;
         }
     }
