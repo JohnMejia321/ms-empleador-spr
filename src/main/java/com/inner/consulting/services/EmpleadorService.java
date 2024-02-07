@@ -97,7 +97,7 @@ public class EmpleadorService {
             empleador.setId(empleadorId);
             empleador.setPdfUrl(pdfUrl);
             empleador.setMetadatosDocumento(ocrResult);
-            empleador.setFechaSolicitud("01/02");
+            empleador.setFechaSolicitud(empleador.getFechaSolicitud());
             empleador.setTipoInscripcion(empleador.getTipoInscripcion());
             empleador.setTipoEmpresa(empleador.getTipoEmpresa());
             empleador.setRuc(empleador.getRuc());
