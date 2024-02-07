@@ -57,7 +57,8 @@ public class EmpleadorService {
         try {
             UUID empleadorId = UUID.randomUUID();
             String pdfName = empleadorId + "-" + pdfFile.getOriginalFilename();
-            String folderName = empleador.getNombreComercial();
+           // String folderName = empleador.getNombreComercial();
+            String folderName = transformFolderName(empleador.getNombreComercial());
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(folderName).build());
             // subir archivos a minion
             minioClient.putObject(
@@ -116,6 +117,10 @@ public class EmpleadorService {
             Logger.getLogger("Error al procesar y guardar el empleador: " + e.getMessage());
             throw e;
         }
+    }
+
+    private String transformFolderName(String nombreComercial) {
+        return nombreComercial.replaceAll("\\s+", "-").toLowerCase();
     }
 
     private String procesarPDF(InputStream pdfStream) throws Exception {
