@@ -24,6 +24,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Logger;
+import com.inner.consulting.utils.EmpleadorUtils;
 
 @Service
 public class EmpleadorService {
@@ -87,29 +88,7 @@ public class EmpleadorService {
             empleador.setId(empleadorId);
             empleador.setPdfUrl(pdfUrl);
             empleador.setMetadatosDocumento(ocrResult);
-            empleador.setFechaSolicitud(empleador.getFechaSolicitud());
-            empleador.setTipoInscripcion(empleador.getTipoInscripcion());
-            empleador.setTipoEmpresa(empleador.getTipoEmpresa());
-            empleador.setRuc(empleador.getRuc());
-            empleador.setTipoDocumento(empleador.getTipoDocumento());
-            empleador.setNumeroDocumento(empleador.getNumeroDocumento());
-            empleador.setIdDocumento(empleador.getIdDocumento());
-            empleador.setDigitoVerificacion(empleador.getDigitoVerificacion());
-            empleador.setCasilla(empleador.getCasilla());
-            empleador.setRazonSocial(empleador.getRazonSocial());
-            empleador.setNombreComercial(empleador.getNombreComercial());
-            empleador.setFechaInicioLabores(empleador.getFechaInicioLabores());
-            empleador.setLocalizacionGeografica(empleador.getLocalizacionGeografica());
-            empleador.setDireccionEstablecimiento(empleador.getDireccionEstablecimiento());
-            empleador.setApartadoEstablecimiento(empleador.getApartadoEstablecimiento());
-            empleador.setTelefonoPrincipal(empleador.getTelefonoPrincipal());
-            empleador.setTelefonoAlterno(empleador.getTelefonoAlterno());
-            empleador.setCelular(empleador.getCelular());
-            empleador.setFax(empleador.getFax());
-            empleador.setCorreoElectronico(empleador.getCorreoElectronico());
-            empleador.setPaginaWeb(empleador.getPaginaWeb());
-            empleador.setAgenciaSolicitudInscripcion(empleador.getAgenciaSolicitudInscripcion());
-            empleador.setNumeroAvisoOperacion(empleador.getNumeroAvisoOperacion());
+            EmpleadorUtils.setearAtributosEmpleador(empleador);
             empleadorRepository.save(empleador);
             pipelineService.ejecutarPipeline(ocrResult);
             return empleador;
