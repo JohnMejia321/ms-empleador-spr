@@ -1,5 +1,6 @@
 package com.inner.consulting.services;
 
+import com.hazelcast.shaded.org.json.JSONObject;
 import com.inner.consulting.config.KafkaConfig;
 import com.inner.consulting.repositories.EmpleadorRepository;
 import com.inner.consulting.entities.Empleador;
@@ -65,8 +66,22 @@ public class EmpleadorService {
             // Crear un archivo JSON temporal
             Path tempJsonPath = Files.createTempFile("temp-json", ".json");
             // Escribir el contenido del JSON en el archivo temporal
+            String inputString = procesarPDF(pdfFile.getInputStream());
+
+            // Paso 1: Analizar la cadena para extraer los datos relevantes
+            String[] parts = inputString.split("\n");
+            String nombre = parts[0].split(": ")[1];
+            String documento = parts[1].split(": ")[1];
+
+            // Paso 2: Construir un objeto JSON
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("nombre", nombre);
+            jsonObject.put("documento", documento);
+
+            // Paso 3: Convertir el objeto JSON en una cadena JSON
+            String jsonString = jsonObject.toString();
             try (FileWriter fileWriter = new FileWriter(tempJsonPath.toFile())) {
-                fileWriter.write( procesarPDF(pdfFile.getInputStream()));
+                fileWriter.write( jsonString );
             }
 
             // Subir el archivo JSON temporal a MinIO
@@ -180,14 +195,10 @@ public class EmpleadorService {
                     .setName("Map String to JSON Object")
                     .setLocalParallelism(1);
             Properties props = kafkaConfig.producerProperties();
-            jsonEntries
-                    .writeTo(KafkaSinks.kafka(props, "my_topic"));
-            jsonEntries.peek()
-                    .writeTo(Sinks.observable("results"));
-            jsonEntries.peek()
-                    .writeTo(Sinks.logger());
-            jsonEntries
-                    .writeTo(Sinks.map("jsonMap"));
+            jsonEntries.writeTo(KafkaSinks.kafka(props, "my_topic"));
+            jsonEntries.peek().writeTo(Sinks.observable("results"));
+            jsonEntries.peek().writeTo(Sinks.logger());
+            jsonEntries.writeTo(Sinks.map("jsonMap"));
             // iniciar el Job en hazelcast
             hz.getJet().newJob(pipeline);
             // alimentar la fuente de datos
