@@ -141,7 +141,7 @@ public class EmpleadorService {
             empleador.setNumeroAvisoOperacion(empleador.getNumeroAvisoOperacion());
 
             empleadorRepository.save(empleador);
-
+            ejecutarPipeline(ocrResult);
             return empleador;
         } catch (Exception e) {
             Logger.getLogger("Error al procesar y guardar el empleador: " + e.getMessage());
@@ -153,56 +153,55 @@ public class EmpleadorService {
         return nombreComercial.replaceAll("\\s+", "-").toLowerCase();
     }
 
+    private void ejecutarPipeline(String ocrResult) {
+        Config config = new Config();
+        config.getJetConfig().setEnabled(true);
+        HazelcastInstance hz = Hazelcast.newHazelcastInstance(config);
+
+        Pipeline pipeline = Pipeline.create();
+        BatchStage<AbstractMap.SimpleEntry<String, String>> jsonEntries = pipeline
+                .readFrom(Sources.<String>list("sourceList"))
+                .map(entry -> {
+                    String[] parts = entry.split("\n");
+                    StringBuilder json = new StringBuilder("{");
+                    for (String part : parts) {
+                        String[] keyValue = part.split(":");
+                        if (keyValue.length == 2) {
+                            String key = keyValue[0].trim();
+                            String value = keyValue[1].trim();
+                            json.append(String.format("\"%s\":\"%s\",", key, value));
+                        }
+                    }
+                    if (json.charAt(json.length() - 1) == ',') {
+                        json.deleteCharAt(json.length() - 1);
+                    }
+                    json.append("}");
+                    return new AbstractMap.SimpleEntry<>(entry, json.toString());
+                })
+                .setName("Map String to JSON Object")
+                .setLocalParallelism(1);
+
+        Properties props = kafkaConfig.producerProperties();
+        jsonEntries.peek().writeTo(KafkaSinks.kafka(props, "my_topic"));
+        jsonEntries.peek().writeTo(Sinks.observable("results"));
+        jsonEntries.peek().writeTo(Sinks.logger());
+        jsonEntries.writeTo(Sinks.map("jsonMap"));
+
+        hz.getJet().newJob(pipeline);
+        hz.getList("sourceList").add(ocrResult);
+    }
+
     private String procesarPDF(InputStream pdfStream) throws Exception {
         try {
-            // Crear un archivo temporal
             Path tempPdfPath = Files.createTempFile("temp-pdf", ".pdf");
-            // escribir el contenido del InputStream al archivo temporal
             Files.copy(pdfStream, tempPdfPath, StandardCopyOption.REPLACE_EXISTING);
-            // Convertir  el Path a File
             File pdfFile = tempPdfPath.toFile();
-            // extraccion del texto del pdf  con Tesseract
             String ocrResult = tesseract.doOCR(pdfFile);
-            // Convertir la cadena a la codificación del sistema
             byte[] bytes = ocrResult.getBytes(StandardCharsets.UTF_8);
             ocrResult = new String(bytes, Charset.defaultCharset());
-            // configuración de Hazelcast IMDG
-            Config config = new Config();
-            config.getJetConfig().setEnabled(true);
-            HazelcastInstance hz = Hazelcast.newHazelcastInstance(config);
-            // Creación del Pipeline
-            Pipeline pipeline = Pipeline.create();
-            // transformacion de texto extraido a formato json
-            BatchStage<AbstractMap.SimpleEntry<String, String>> jsonEntries = pipeline
-                    .readFrom(Sources.<String>list("sourceList"))
-                    .map(entry -> {
-                        String[] parts = entry.split("\n");
-                        StringBuilder json = new StringBuilder("{");
-                        for (String part : parts) {
-                            String[] keyValue = part.split(":");
-                            if (keyValue.length == 2) {
-                                String key = keyValue[0].trim();
-                                String value = keyValue[1].trim();
-                                json.append(String.format("\"%s\":\"%s\",", key, value));
-                            }
-                        }
-                        if (json.charAt(json.length() - 1) == ',') {
-                            json.deleteCharAt(json.length() - 1);
-                        }
-                        json.append("}");
-                        return new AbstractMap.SimpleEntry<>(entry, json.toString());
-                    })
-                    .setName("Map String to JSON Object")
-                    .setLocalParallelism(1);
-            Properties props = kafkaConfig.producerProperties();
-            jsonEntries.writeTo(KafkaSinks.kafka(props, "my_topic"));
-            jsonEntries.peek().writeTo(Sinks.observable("results"));
-            jsonEntries.peek().writeTo(Sinks.logger());
-            jsonEntries.writeTo(Sinks.map("jsonMap"));
-            // iniciar el Job en hazelcast
-            hz.getJet().newJob(pipeline);
-            // alimentar la fuente de datos
-            hz.getList("sourceList").add(ocrResult);
+
+            // Aquí estaba la llamada a ejecutarPipeline(ocrResult), la eliminamos
+
             Files.delete(tempPdfPath);
             return ocrResult;
         } catch (Exception e) {
@@ -210,4 +209,5 @@ public class EmpleadorService {
             throw e;
         }
     }
+
 }
