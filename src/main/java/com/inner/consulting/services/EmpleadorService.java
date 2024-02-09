@@ -4,6 +4,7 @@ import com.hazelcast.shaded.org.json.JSONObject;
 import com.inner.consulting.config.KafkaConfig;
 import com.inner.consulting.repositories.EmpleadorRepository;
 import com.inner.consulting.entities.Empleador;
+import com.inner.consulting.utils.PdfUtils;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
@@ -25,6 +26,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.logging.Logger;
 import com.inner.consulting.utils.EmpleadorUtils;
+
 
 @Service
 public class EmpleadorService {
@@ -52,7 +54,7 @@ public class EmpleadorService {
             //String folderName = transformFolderName(empleador.getNombreComercial());
             String folderName = empleadorId.toString();
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(folderName).build());
-            Path tempJsonPath = Files.createTempFile("temp-json", ".json");
+            /*Path tempJsonPath = Files.createTempFile("temp-json", ".json");
             String inputString = procesarPDF(pdfFile.getInputStream());
             String[] parts = inputString.split("\n");
             String nombre = parts[0].split(": ")[1];
@@ -71,7 +73,7 @@ public class EmpleadorService {
                             .stream(Files.newInputStream(tempJsonPath), Files.size(tempJsonPath), -1)
                             .contentType("application/json")
                             .build());
-
+*/
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(folderName)
@@ -82,7 +84,10 @@ public class EmpleadorService {
 
             String pdfUrl = minionEndpoint + "/" + minionBucketName + "/" + pdfName;
             String jsonUrl = minionEndpoint + "/" + minionBucketName + "/" + jsonName;
-            String ocrResult = procesarPDF(pdfFile.getInputStream());
+           // String ocrResult = procesarPDF(pdfFile.getInputStream());
+            String ocrResult = PdfUtils.processPDFDocument(pdfFile.getInputStream());
+
+
             Logger.getLogger(EmpleadorService.class.getName()).info("Texto extraído del PDF: " + ocrResult);
             Instant now = Instant.now();
             empleador.setId(empleadorId);
