@@ -55,7 +55,8 @@ public class PdfUtils {
                         normalizedText = normalizedText.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
                         sb.append(normalizedText).append(",");
                     }
-                    String finalText = sb.toString().replace(",,", "::").replace(",", ":").replace("::", ",,");
+                 //   String finalText = sb.toString().replace(",,", "::").replace(",", ":").replace("::", ",,");
+                    String finalText = sb.toString().replace(",,", "").replace(",", ":");
                     result.append(finalText).append("\n");
                 }
             }
