@@ -5,56 +5,61 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.*;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import technology.tabula.*;
+import technology.tabula.extractors.BasicExtractionAlgorithm;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+
 public class PdfUtils {
 
     public static String processPDFDocument(InputStream pdfStream) throws IOException {
+        StringBuilder result = new StringBuilder();
+
         // Cargar el archivo PDF
         PDDocument document = PDDocument.load(pdfStream);
 
-        // Crear un objeto PDFTextStripper
-        PDFTextStripper pdfStripper = new PDFTextStripper();
+        // Crear un objeto ObjectExtractor
+        ObjectExtractor oe = new ObjectExtractor(document);
+        PageIterator iterator = oe.extract();
 
-        // Extraer texto
-        StringWriter textWriter = new StringWriter();
-        pdfStripper.writeText(document, textWriter);
-        String text = textWriter.toString();
+        // Crear un objeto BasicExtractionAlgorithm
+        BasicExtractionAlgorithm bea = new BasicExtractionAlgorithm();
 
-        // Dividir el texto en líneas
-        String[] lines = text.split("\\r?\\n");
+        // Iterar sobre las páginas
+        while (iterator.hasNext()) {
+            Page page = iterator.next();
 
-        // Recorrer cada línea y aplicar los reemplazos necesarios
-        StringBuilder formattedText = new StringBuilder();
-        for (String line : lines) {
-            line = line.replaceAll("\\s+", " ");
-            line = line.replace("Tipo Inscripción", "Tipo Inscripcion: ");
-            line = line.replace("Tipo de empresa", "Tipo de empresa: ");
-            line = line.replace("RUC", "RUC: ");
-            line = line.replace("Tipo de documento", "Tipo de documento: ");
-            line = line.replace("Número de documento", "Numero de documento: ");
-            line = line.replace("ID de documento", "ID de documento: ");
-            line = line.replace("Fecha Solicitud", "Fecha Solicitud: ");
-            line = line.replace("Digito verificación", "Digito verificacion: ");
-            line = line.replace("Casilla si pertenece a un grupo empresarial", "Casilla si pertenece a un grupo empresarial: ");
-            line = line.replace("Razón social", "Razon social: ");
-            line = line.replace("Nombre comercial del establecimiento", "Nombre comercial del establecimiento: ");
-            line = line.replace("Fecha Inicio de labores", "Fecha Inicio de labores: ");
-            line = line.replace("Localización geográfica", "Localizacion geografica: ");
-            line = line.replace("Dirección del establecimiento comercial", "Direccion del establecimiento comercial: ");
-            line = line.replace("Apartado del establecimiento comercial", "Apartado del establecimiento comercial: ");
-            line = line.replace("Teléfono del establecimiento comercial", "Telefono del establecimiento comercial: ");
-            line = line.replace("Teléfono alterno del establecimiento", "Telefono alterno del establecimiento: ");
-            line = line.replace("Celular", "Celular: ");
-            line = line.replace("Fax", "Fax: ");
-            line = line.replace("Correo electrónico", "Correo electronico: ");
-            line = line.replace("Página WEB", "Pagina WEB: ");
-            line = line.replace("Agencia Solicitud", "Agencia Solicitud inscripcion: ");
-            line = line.replace("Número aviso operación", "Numero aviso operacion: ");
-            formattedText.append(line).append(",\n");
+            // Extraer las tablas de la página
+            List<Table> tables = bea.extract(page);
+
+            // Iterar sobre las tablas
+            for (Table table : tables) {
+                int rowCounter = 0;
+                // Iterar sobre las filas de la tabla
+                for (List<RectangularTextContainer> row : table.getRows()) {
+                    // Omitir las dos primeras filas
+                    if (rowCounter < 2) {
+                        rowCounter++;
+                        continue;
+                    }
+                    StringBuilder sb = new StringBuilder();
+                    // Iterar sobre las celdas de la fila
+                    for (RectangularTextContainer cell : row) {
+                        sb.append(cell.getText()).append(",");
+                    }
+                    String finalText = sb.toString().replace(",,", "::").replace(",", ":").replace("::", ",,");
+                    result.append(finalText).append("\n");
+                }
+            }
+
+            // Cerrar el documento PDF
+            document.close();
         }
 
-        // Cerrar el documento
-        document.close();
-
-        return formattedText.toString();
+        return result.toString();
     }
 }
