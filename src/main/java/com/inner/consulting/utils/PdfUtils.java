@@ -11,6 +11,7 @@ import technology.tabula.extractors.BasicExtractionAlgorithm;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.Normalizer;
 import java.util.List;
 
 
@@ -49,7 +50,10 @@ public class PdfUtils {
                     StringBuilder sb = new StringBuilder();
                     // Iterar sobre las celdas de la fila
                     for (RectangularTextContainer cell : row) {
-                        sb.append(cell.getText()).append(",");
+                        // Remover las tildes del texto
+                        String normalizedText = Normalizer.normalize(cell.getText(), Normalizer.Form.NFD);
+                        normalizedText = normalizedText.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+                        sb.append(normalizedText).append(",");
                     }
                     String finalText = sb.toString().replace(",,", "::").replace(",", ":").replace("::", ",,");
                     result.append(finalText).append("\n");
