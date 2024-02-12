@@ -1,5 +1,7 @@
 package com.inner.consulting.services;
 
+import com.hazelcast.jet.JetInstance;
+import com.hazelcast.jet.Observable;
 import com.hazelcast.shaded.org.json.JSONObject;
 import com.inner.consulting.config.KafkaConfig;
 import com.inner.consulting.repositories.EmpleadorRepository;
@@ -46,6 +48,9 @@ public class EmpleadorService {
     private String minionEndpoint;
     @Value("${minion.bucketName}")
     private String minionBucketName;
+
+
+
     public Empleador saveEmpleador(Empleador empleador, MultipartFile pdfFile) throws Exception {
         try {
             UUID empleadorId = UUID.randomUUID();
@@ -54,17 +59,12 @@ public class EmpleadorService {
             //String folderName = transformFolderName(empleador.getNombreComercial());
             String folderName = transformFolderName(empleador.getNombreComercial()+"-"+empleadorId.toString());
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(folderName).build());
-            /*Path tempJsonPath = Files.createTempFile("temp-json", ".json");
-            String inputString = procesarPDF(pdfFile.getInputStream());
-            String[] parts = inputString.split("\n");
-            String nombre = parts[0].split(": ")[1];
-            String documento = parts[1].split(": ")[1];
+            Path tempJsonPath = Files.createTempFile("temp-json", ".json");
+            String inputString = PdfUtils.processPDFDocument(pdfFile.getInputStream());
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("nombre", nombre);
-            jsonObject.put("documento", documento);
-            String jsonString = jsonObject.toString();
+           // String jsonString = jsonObject.toString();
             try (FileWriter fileWriter = new FileWriter(tempJsonPath.toFile())) {
-                fileWriter.write( jsonString );
+                fileWriter.write( inputString );
             }
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -73,7 +73,7 @@ public class EmpleadorService {
                             .stream(Files.newInputStream(tempJsonPath), Files.size(tempJsonPath), -1)
                             .contentType("application/json")
                             .build());
-*/
+
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(folderName)
@@ -86,6 +86,8 @@ public class EmpleadorService {
             String jsonUrl = minionEndpoint + "/" + minionBucketName + "/" + jsonName;
            // String ocrResult = procesarPDF(pdfFile.getInputStream());
             String ocrResult = PdfUtils.processPDFDocument(pdfFile.getInputStream());
+
+
 
 
             Logger.getLogger(EmpleadorService.class.getName()).info("Texto extraído del PDF: " + ocrResult);
