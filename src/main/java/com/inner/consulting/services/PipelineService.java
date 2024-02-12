@@ -48,10 +48,17 @@ public class PipelineService {
                     .setLocalParallelism(1);
 
             Properties props = kafkaConfig.producerProperties();
-            jsonEntries.peek().writeTo(KafkaSinks.kafka(props, "my_topic"));
+            /*jsonEntries.peek().writeTo(KafkaSinks.kafka(props, "my_topic"));
             jsonEntries.peek().writeTo(Sinks.observable("results"));
             jsonEntries.peek().writeTo(Sinks.logger());
+            jsonEntries.writeTo(Sinks.map("jsonMap"));*/
+
+            jsonEntries.writeTo(KafkaSinks.kafka(props, "my_topic"));
+            jsonEntries.writeTo(Sinks.observable("results"));
+            jsonEntries.writeTo(Sinks.logger());
             jsonEntries.writeTo(Sinks.map("jsonMap"));
+
+
 
             // Inicializar Hazelcast Jet
             // Obtener la lista "sourceList" y agregar datos
