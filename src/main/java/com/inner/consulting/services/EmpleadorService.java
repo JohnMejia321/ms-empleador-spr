@@ -52,7 +52,7 @@ public class EmpleadorService {
             String pdfName = empleadorId + "-" + pdfFile.getOriginalFilename();
             String jsonName = pdfName.replace(".pdf", ".json");
             //String folderName = transformFolderName(empleador.getNombreComercial());
-            String folderName = empleadorId.toString();
+            String folderName = transformFolderName(empleador.getNombreComercial()+"-"+empleadorId.toString());
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(folderName).build());
             /*Path tempJsonPath = Files.createTempFile("temp-json", ".json");
             String inputString = procesarPDF(pdfFile.getInputStream());
