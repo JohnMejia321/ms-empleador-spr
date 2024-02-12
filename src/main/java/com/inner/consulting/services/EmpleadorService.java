@@ -64,7 +64,7 @@ public class EmpleadorService {
             JSONObject jsonObject = new JSONObject();
            // String jsonString = jsonObject.toString();
             try (FileWriter fileWriter = new FileWriter(tempJsonPath.toFile())) {
-                fileWriter.write( inputString );
+                fileWriter.write( convertToJSON(inputString) );
             }
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -120,6 +120,20 @@ public class EmpleadorService {
             Logger.getLogger("Error al procesar el PDF con Tesseract: " + e.getMessage());
             throw e;
         }
+    }
+
+    public static String convertToJSON(String keyValueString) {
+        JSONObject json = new JSONObject();
+        String[] lines = keyValueString.split("\n");
+        for (String line : lines) {
+            String[] keyValue = line.split(":");
+            if (keyValue.length == 2) {
+                String key = keyValue[0].trim().replace(" ", "_"); // Reemplazar espacios por guiones bajos
+                String value = keyValue[1].trim();
+                json.put(key, value);
+            }
+        }
+        return json.toString();
     }
 
 }
