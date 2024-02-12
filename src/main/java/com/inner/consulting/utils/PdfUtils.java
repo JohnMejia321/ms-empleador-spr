@@ -1,5 +1,6 @@
 package com.inner.consulting.utils;
 
+import com.hazelcast.shaded.org.json.JSONObject;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
@@ -66,5 +67,20 @@ public class PdfUtils {
         }
 
         return result.toString();
+    }
+
+    public static String convertToJSON(String keyValueString) {
+        JSONObject json = new JSONObject();
+        String[] lines = keyValueString.split("\n");
+        for (String line : lines) {
+            String[] keyValue = line.split(":");
+            if (keyValue.length == 2) {
+                // String key = keyValue[0].trim().replace(" ", "_");
+                String key = keyValue[0].trim();
+                String value = keyValue[1].trim();
+                json.put(key, value);
+            }
+        }
+        return json.toString();
     }
 }
