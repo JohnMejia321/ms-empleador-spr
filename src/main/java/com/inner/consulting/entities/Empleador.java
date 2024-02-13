@@ -137,5 +137,8 @@ public class Empleador {
     @Column("numero_aviso_operacion")
     private int numeroAvisoOperacion;
 
-    // Getters and setters
+    public Empleador(UUID uuid, String pdfUrl, String metadatosDocumento,
+                     String fechaSolicitud, String tipoInscripcion) {
+    }
+
 }

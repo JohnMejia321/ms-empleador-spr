@@ -3,20 +3,18 @@ package com.inner.consulting.services;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.JetService;
-import com.hazelcast.jet.Observable;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.pipeline.Sources;
 import com.hazelcast.jet.pipeline.BatchStage;
-import com.hazelcast.jet.pipeline.test.SimpleEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import com.inner.consulting.config.KafkaConfig;
 import java.util.Properties;
 import java.util.AbstractMap;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 @Service
@@ -27,13 +25,6 @@ public class PipelineService {
 
     public void ejecutarPipeline(String ocrResult) {
         try {
-            Config config = new Config();
-            config.getJetConfig().setEnabled(true);
-            HazelcastInstance hz = Hazelcast.newHazelcastInstance(config);
-            JetService jet = hz.getJet();
-            Observable<AbstractMap.SimpleEntry<String, String>> observable = jet.newObservable();
-            observable.addObserver(entry -> System.out.println("xxxxxxxxxxxx " + entry));
-
             Pipeline pipeline = Pipeline.create();
             BatchStage<AbstractMap.SimpleEntry<String, String>> jsonEntries = pipeline
                     .readFrom(Sources.<String>list("sourceList"))
@@ -51,6 +42,8 @@ public class PipelineService {
                         if (json.charAt(json.length() - 1) == ',') {
                             json.deleteCharAt(json.length() - 1);
                         }
+                        UUID messageId = UUID.randomUUID();
+                        json.append(String.format(",\"Id solicitud\":\"%s\"", messageId.toString()));
                         json.append("}");
                         return new AbstractMap.SimpleEntry<>(entry, json.toString());
                     })
@@ -64,7 +57,7 @@ public class PipelineService {
             jsonEntries.writeTo(Sinks.map("jsonMap"));*/
 
             jsonEntries.writeTo(KafkaSinks.kafka(props, "my_topic"));
-            jsonEntries.writeTo(Sinks.observable(observable));
+            jsonEntries.writeTo(Sinks.observable("results"));
             jsonEntries.writeTo(Sinks.logger());
             jsonEntries.writeTo(Sinks.map("jsonMap"));
 
@@ -72,13 +65,11 @@ public class PipelineService {
 
             // Inicializar Hazelcast Jet
             // Obtener la lista "sourceList" y agregar datos
-          //  Config config = new Config();
-         //   config.getJetConfig().setEnabled(true);
-         //   HazelcastInstance hz = Hazelcast.newHazelcastInstance(config);
+            Config config = new Config();
+            config.getJetConfig().setEnabled(true);
+            HazelcastInstance hz = Hazelcast.newHazelcastInstance(config);
             hz.getList("sourceList").add(ocrResult);
             hz.getJet().newJob(pipeline);
-
-
         } catch (Exception e) {
             Logger.getLogger(PipelineService.class.getName()).severe("Error al ejecutar el pipeline: " + e.getMessage());
             throw e;
