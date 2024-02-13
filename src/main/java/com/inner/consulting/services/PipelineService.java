@@ -3,9 +3,9 @@ package com.inner.consulting.services;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sinks;
-import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.pipeline.Sources;
 import com.hazelcast.jet.pipeline.BatchStage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +29,7 @@ public class PipelineService {
             BatchStage<AbstractMap.SimpleEntry<String, String>> jsonEntries = pipeline
                     .readFrom(Sources.<String>list("sourceList"))
                     .map(entry -> {
+                        // Parsear la entrada JSON
                         String[] parts = entry.split("\n");
                         StringBuilder json = new StringBuilder("{");
                         for (String part : parts) {
@@ -42,29 +43,33 @@ public class PipelineService {
                         if (json.charAt(json.length() - 1) == ',') {
                             json.deleteCharAt(json.length() - 1);
                         }
-                        UUID messageId = UUID.randomUUID();
-                        json.append(String.format(",\"Id solicitud\":\"%s\"", messageId.toString()));
+                        UUID messageIdJson = UUID.randomUUID();
+                        json.append(String.format(",\"Id solicitud\":\"%s\"", messageIdJson.toString()));
                         json.append("}");
-                        return new AbstractMap.SimpleEntry<>(entry, json.toString());
+
+                        // Generar un UUID único para la clave
+                        String messageId = messageIdJson.toString();
+
+                        // Crear la entrada con la clave y el valor
+                        return new AbstractMap.SimpleEntry<>(messageId, json.toString());
                     })
                     .setName("Map String to JSON Object")
                     .setLocalParallelism(1);
 
             Properties props = kafkaConfig.producerProperties();
-            /*jsonEntries.peek().writeTo(KafkaSinks.kafka(props, "my_topic"));
-            jsonEntries.peek().writeTo(Sinks.observable("results"));
-            jsonEntries.peek().writeTo(Sinks.logger());
-            jsonEntries.writeTo(Sinks.map("jsonMap"));*/
 
-            jsonEntries.writeTo(KafkaSinks.kafka(props, "my_topic"));
+            // Escribir los datos en el tópico Kafka con la clave y el valor separados
+            jsonEntries.writeTo(KafkaSinks.kafka(props,
+                    "my_topic",
+                    entry -> entry.getKey(),
+                    entry -> entry.getValue() 
+            ));
+
             jsonEntries.writeTo(Sinks.observable("results"));
             jsonEntries.writeTo(Sinks.logger());
             jsonEntries.writeTo(Sinks.map("jsonMap"));
 
-
-
-            // Inicializar Hazelcast Jet
-            // Obtener la lista "sourceList" y agregar datos
+            // Inicializar Hazelcast Jet y ejecutar el pipeline
             Config config = new Config();
             config.getJetConfig().setEnabled(true);
             HazelcastInstance hz = Hazelcast.newHazelcastInstance(config);
