@@ -8,10 +8,13 @@ import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.Sources;
 import com.hazelcast.jet.pipeline.BatchStage;
+import com.hazelcast.map.IMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import com.inner.consulting.config.KafkaConfig;
+
+import java.util.Map;
 import java.util.Properties;
 import java.util.AbstractMap;
 import java.util.UUID;
@@ -23,7 +26,7 @@ public class PipelineService {
     @Autowired
     private KafkaConfig kafkaConfig;
 
-    public void ejecutarPipeline(String ocrResult) {
+    public void ejecutarPipeline(String ocrResult) throws InterruptedException {
         try {
             Pipeline pipeline = Pipeline.create();
             BatchStage<AbstractMap.SimpleEntry<String, String>> jsonEntries = pipeline
@@ -75,6 +78,13 @@ public class PipelineService {
             HazelcastInstance hz = Hazelcast.newHazelcastInstance(config);
             hz.getList("sourceList").add(ocrResult);
             hz.getJet().newJob(pipeline);
+            Thread.sleep(2000); // Espera 2 segundos (ajusta el tiempo según sea necesario)
+            IMap<String, String> jsonMap = hz.getMap("jsonMap");
+
+            // Imprimir el contenido del mapa
+            for (Map.Entry<String, String> entry : jsonMap.entrySet()) {
+                System.out.println("Clave desde  mapa: " + entry.getKey() + ", Valor: " + entry.getValue());
+            }
         } catch (Exception e) {
             Logger.getLogger(PipelineService.class.getName()).severe("Error al ejecutar el pipeline: " + e.getMessage());
             throw e;
