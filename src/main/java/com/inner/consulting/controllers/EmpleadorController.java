@@ -13,10 +13,8 @@ import com.inner.consulting.services.EmpleadorService;
 
 @Controller
 public class EmpleadorController {
-
     @Autowired
     private EmpleadorService empleadorService;
-
     @PostMapping("/agregar-empleador")
     public String saveEmpleador(@ModelAttribute Empleador empleador,
                                 @RequestParam("pdfFile") MultipartFile pdfFile,

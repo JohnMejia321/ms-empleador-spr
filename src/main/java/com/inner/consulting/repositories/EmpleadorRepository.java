@@ -8,5 +8,4 @@ import com.inner.consulting.entities.Empleador;
 
 @Repository
 public interface EmpleadorRepository extends CassandraRepository<Empleador, UUID> {
-
 }

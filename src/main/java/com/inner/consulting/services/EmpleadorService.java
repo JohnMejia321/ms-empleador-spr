@@ -48,9 +48,6 @@ public class EmpleadorService {
     private String minionEndpoint;
     @Value("${minion.bucketName}")
     private String minionBucketName;
-
-
-
     public Empleador saveEmpleador(Empleador empleador, MultipartFile pdfFile) throws Exception {
         try {
             UUID empleadorId = UUID.randomUUID();
@@ -86,10 +83,6 @@ public class EmpleadorService {
             String jsonUrl = minionEndpoint + "/" + minionBucketName + "/" + jsonName;
            // String ocrResult = procesarPDF(pdfFile.getInputStream());
             String ocrResult = PdfUtils.processPDFDocument(pdfFile.getInputStream());
-
-
-
-
             Logger.getLogger(EmpleadorService.class.getName()).info("Texto extraído del PDF: " + ocrResult);
             Instant now = Instant.now();
             empleador.setId(empleadorId);
@@ -117,11 +110,8 @@ public class EmpleadorService {
             Files.delete(tempPdfPath);
             return ocrResult;
         } catch (Exception e) {
-            Logger.getLogger("Error al procesar el PDF con Tesseract: " + e.getMessage());
+            Logger.getLogger("Error al procesar el PDF: " + e.getMessage());
             throw e;
         }
     }
-
-
-
 }
