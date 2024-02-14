@@ -1,38 +1,25 @@
 package com.inner.consulting.services;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.kafka.KafkaSinks;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.Sources;
 import com.hazelcast.jet.pipeline.BatchStage;
-import com.hazelcast.map.IMap;
+import com.inner.consulting.config.KafkaConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.inner.consulting.config.KafkaConfig;
-import java.util.Map;
-import java.util.Properties;
 import java.util.AbstractMap;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Logger;
 
 @Service
 public class PipelineService {
-
     @Autowired
     private KafkaConfig kafkaConfig;
-
-    // Inicializar HazelcastInstance como un campo para usarlo en todo el servicio
+    @Autowired
     private HazelcastInstance hazelcastInstance;
-
-    // Constructor para inicializar HazelcastInstance
-    public PipelineService() {
-        Config config = new Config();
-        config.getJetConfig().setEnabled(true);
-        hazelcastInstance = Hazelcast.newHazelcastInstance(config);
-    }
     public void ejecutarPipeline(String ocrResult) throws InterruptedException {
         try {
             Pipeline pipeline = Pipeline.create();
