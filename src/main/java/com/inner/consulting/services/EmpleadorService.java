@@ -90,7 +90,7 @@ public class EmpleadorService {
             empleador.setMetadatosDocumento(ocrResult);
             EmpleadorUtils.setearAtributosEmpleador(empleador);
             empleadorRepository.save(empleador);
-            pipelineService.ejecutarPipeline(ocrResult);
+            pipelineService.ejecutarPipeline(ocrResult, empleadorId);
             return empleador;
         } catch (Exception e) {
             Logger.getLogger("Error al procesar y guardar el empleador: " + e.getMessage());

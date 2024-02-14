@@ -20,7 +20,7 @@ public class PipelineService {
     private KafkaConfig kafkaConfig;
     @Autowired
     private HazelcastInstance hazelcastInstance;
-    public void ejecutarPipeline(String ocrResult) throws InterruptedException {
+    public void ejecutarPipeline(String ocrResult,UUID empleadorId) throws InterruptedException {
         try {
             Pipeline pipeline = Pipeline.create();
             BatchStage<AbstractMap.SimpleEntry<String, String>> jsonEntries = pipeline
@@ -39,7 +39,7 @@ public class PipelineService {
                         if (json.charAt(json.length() - 1) == ',') {
                             json.deleteCharAt(json.length() - 1);
                         }
-                        UUID messageIdJson = UUID.randomUUID();
+                        UUID messageIdJson = empleadorId;
                         json.append(String.format(",\"Id solicitud\":\"%s\"", messageIdJson.toString()));
                         json.append("}");
                         String messageId = messageIdJson.toString();
