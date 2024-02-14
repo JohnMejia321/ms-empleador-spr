@@ -9,6 +9,16 @@ import com.hazelcast.jet.pipeline.BatchStage;
 import com.inner.consulting.config.KafkaConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.hazelcast.jet.Jet;
+import com.hazelcast.jet.JetInstance;
+import com.hazelcast.jet.Job;
+import com.hazelcast.jet.config.JobConfig;
+import com.hazelcast.jet.pipeline.Pipeline;
+import com.hazelcast.jet.pipeline.Sinks;
+import com.hazelcast.jet.pipeline.Sources;
+
+
 import java.util.AbstractMap;
 import java.util.Properties;
 import java.util.UUID;
@@ -20,7 +30,8 @@ public class PipelineService {
     private KafkaConfig kafkaConfig;
     @Autowired
     private HazelcastInstance hazelcastInstance;
-    public void ejecutarPipeline(String ocrResult,UUID empleadorId) throws InterruptedException {
+
+    public void ejecutarPipeline(String ocrResult, UUID empleadorId) throws InterruptedException {
         try {
             Pipeline pipeline = Pipeline.create();
             BatchStage<AbstractMap.SimpleEntry<String, String>> jsonEntries = pipeline
@@ -47,6 +58,7 @@ public class PipelineService {
                     })
                     .setName("Map String to JSON Object")
                     .setLocalParallelism(1);
+
             Properties props = kafkaConfig.producerProperties();
             jsonEntries.writeTo(KafkaSinks.kafka(props,
                     "my_topic",
@@ -56,9 +68,13 @@ public class PipelineService {
             jsonEntries.writeTo(Sinks.observable("results"));
             jsonEntries.writeTo(Sinks.logger());
             jsonEntries.writeTo(Sinks.map("jsonMap"));
-            hazelcastInstance.getList("sourceList").clear();
-            hazelcastInstance.getList("sourceList").add(ocrResult);
-            hazelcastInstance.getJet().newJob(pipeline);
+
+            hazelcastInstance.getList("sourceList").clear(); // Limpiar lista
+            hazelcastInstance.getList("sourceList").add(ocrResult); // Agregar elemento a la lista
+
+            JobConfig jobConfig = new JobConfig();
+            jobConfig.addClass(PipelineService.class); // Agregar la clase al JobConfig
+            hazelcastInstance.getJet().newJob(pipeline, jobConfig);
         } catch (Exception e) {
             Logger.getLogger(PipelineService.class.getName()).severe("Error al ejecutar el pipeline: " + e.getMessage());
             throw e;
