@@ -3,117 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <title>Inner consulting</title>
-  <!-- Agregar CSS de Bootstrap -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <!-- Agregar CSS de Materialize -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <!-- Fuentes de Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
 <div class="container">
-  <h1 class="mt-4 mb-4">Formulario inscripción de empleador</h1>
-  <form action="/agregar-empleador" method="post" enctype="multipart/form-data">
-    <div class="form-group">
-      <label for="pdfFile">PDF File:</label>
-      <input type="file" id="pdfFile" name="pdfFile" accept="application/pdf" required class="form-control-file">
+  <h1 class="center-align teal-text text-darken-2" style="font-family: 'Roboto', sans-serif; font-weight: 300;">Formulario de Inscripción de Empleador</h1>
+  <form action="/agregar-empleador" method="post" enctype="multipart/form-data" class="col s12" id="empleadorForm">
+    <div class="row">
+      <div class="file-field input-field col s12">
+        <div class="btn">
+          <span>Seleccionar PDF</span>
+          <input type="file" name="pdfFile" accept="application/pdf" required>
+        </div>
+        <div class="file-path-wrapper">
+          <input class="file-path validate" type="text" placeholder="Por favor, seleccione un documento PDF">
+        </div>
+      </div>
     </div>
-
-    <div class="form-group">
-      <label for="fechaSolicitud">Fecha de Solicitud:</label>
-      <input type="date" id="fechaSolicitud" name="fechaSolicitud" required class="form-control">
+    <div class="row">
+      <div class="input-field col s12 m6">
+        <input id="fechaSolicitud" type="date" name="fechaSolicitud" class="validate" required>
+        <label for="fechaSolicitud">Fecha de Solicitud</label>
+      </div>
+      <div class="input-field col s12 m6">
+        <input id="tipoInscripcion" type="text" name="tipoInscripcion" class="validate" required>
+        <label for="tipoInscripcion">Tipo de Inscripción</label>
+      </div>
     </div>
-
-    <div class="form-group">
-      <label for="tipoInscripcion">Tipo de Inscripción:</label>
-      <input type="text" id="tipoInscripcion" name="tipoInscripcion" required class="form-control">
+    <div class="row">
+      <div class="input-field col s12 m6">
+        <input id="tipoEmpresa" type="text" name="tipoEmpresa" class="validate" required>
+        <label for="tipoEmpresa">Tipo de Empresa</label>
+      </div>
+      <div class="input-field col s12 m6">
+        <input id="ruc" type="text" name="ruc" class="validate" required>
+        <label for="ruc">RUC</label>
+      </div>
     </div>
-
-
-    <div class="form-group">
-      <label for="tipoEmpresa">Tipo de Empresa:</label>
-      <input type="text" id="tipoEmpresa" name="tipoEmpresa" required class="form-control">
+    <div class="row">
+      <div class="input-field col s12 m6">
+        <input id="tipoDocumento" type="text" name="tipoDocumento" class="validate" required>
+        <label for="tipoDocumento">Tipo de Documento</label>
+      </div>
+      <div class="input-field col s12 m6">
+        <input id="numeroDocumento" type="text" name="numeroDocumento" class="validate" required>
+        <label for="numeroDocumento">Número de Documento</label>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="ruc">RUC:</label>
-      <input type="text" id="ruc" name="ruc" required class="form-control">
+    <div class="row">
+      <div class="input-field col s12 m6">
+        <input id="idDocumento" type="text" name="idDocumento" class="validate" required>
+        <label for="idDocumento">ID del Documento</label>
+      </div>
+      <div class="input-field col s12 m6">
+        <input id="digitoVerificacion" type="number" name="digitoVerificacion" class="validate" required>
+        <label for="digitoVerificacion">Digito de Verificación</label>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="tipoDocumento">Tipo de Documento:</label>
-      <input type="text" id="tipoDocumento" name="tipoDocumento" required class="form-control">
+    <div class="row">
+      <div class="input-field col s12 m6">
+        <input id="casilla" type="text" name="casilla" class="validate" required>
+        <label for="casilla">Casilla</label>
+      </div>
+      <div class="input-field col s12 m6">
+        <input id="razonSocial" type="text" name="razonSocial" class="validate" required>
+        <label for="razonSocial">Razón Social</label>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="numeroDocumento">Número de Documento:</label>
-      <input type="text" id="numeroDocumento" name="numeroDocumento" required class="form-control">
+    <div class="row">
+      <div class="input-field col s12 m6">
+        <input id="nombreComercial" type="text" name="nombreComercial" class="validate" required>
+        <label for="nombreComercial">Nombre Comercial</label>
+      </div>
+      <div class="input-field col s12 m6">
+        <input id="fechaInicioLabores" type="date" name="fechaInicioLabores" class="validate" required>
+        <label for="fechaInicioLabores">Fecha de Inicio de Labores</label>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="idDocumento">ID del Documento:</label>
-      <input type="text" id="idDocumento" name="idDocumento" required class="form-control">
+    <div class="row">
+      <div class="input-field col s12 m6">
+        <input id="localizacionGeografica" type="text" name="localizacionGeografica" class="validate" required>
+        <label for="localizacionGeografica">Localización Geográfica</label>
+      </div>
+      <div class="input-field col s12 m6">
+        <input id="direccionEstablecimiento" type="text" name="direccionEstablecimiento" class="validate" required>
+        <label for="direccionEstablecimiento">Dirección del Establecimiento</label>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="digitoVerificacion">Digito de Verificación:</label>
-      <input type="number" id="digitoVerificacion" name="digitoVerificacion" required class="form-control">
+    <div class="row">
+      <div class="input-field col s12 m6">
+        <input id="apartadoEstablecimiento" type="number" name="apartadoEstablecimiento" class="validate" required>
+        <label for="apartadoEstablecimiento">Apartado del Establecimiento</label>
+      </div>
+      <div class="input-field col s12 m6">
+        <input id="telefonoPrincipal" type="text" name="telefonoPrincipal" class="validate" required>
+        <label for="telefonoPrincipal">Teléfono Principal</label>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="casilla">Casilla:</label>
-      <input type="text" id="casilla" name="casilla" required class="form-control">
+    <div class="row">
+      <div class="input-field col s12 m6">
+        <input id="telefonoAlterno" type="text" name="telefonoAlterno" class="validate" required>
+        <label for="telefonoAlterno">Teléfono Alterno</label>
+      </div>
+      <div class="input-field col s12 m6">
+        <input id="celular" type="text" name="celular" class="validate" required>
+        <label for="celular">Celular</label>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="razonSocial">Razón Social:</label>
-      <input type="text" id="razonSocial" name="razonSocial" required class="form-control">
+    <div class="row">
+      <div class="input-field col s12 m6">
+        <input id="fax" type="text" name="fax" class="validate" required>
+        <label for="fax">Fax</label>
+      </div>
+      <div class="input-field col s12 m6">
+        <input id="correoElectronico" type="email" name="correoElectronico" class="validate" required>
+        <label for="correoElectronico">Correo Electrónico</label>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="nombreComercial">Nombre Comercial:</label>
-      <input type="text" id="nombreComercial" name="nombreComercial" required class="form-control">
+    <div class="row">
+      <div class="input-field col s12">
+        <input id="paginaWeb" type="url" name="paginaWeb" class="validate" required>
+        <label for="paginaWeb">Página Web</label>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="fechaInicioLabores">Fecha de Inicio de Labores:</label>
-      <input type="date" id="fechaInicioLabores" name="fechaInicioLabores" required class="form-control">
+    <div class="row">
+      <div class="input-field col s12">
+        <input id="agenciaSolicitudInscripcion" type="text" name="agenciaSolicitudInscripcion" class="validate" required>
+        <label for="agenciaSolicitudInscripcion">Agencia de Solicitud de Inscripción</label>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="localizacionGeografica">Localización Geográfica:</label>
-      <input type="text" id="localizacionGeografica" name="localizacionGeografica" required class="form-control">
+    <div class="row">
+      <div class="input-field col s12">
+        <input id="numeroAvisoOperacion" type="number" name="numeroAvisoOperacion" class="validate" required>
+        <label for="numeroAvisoOperacion">Número de Aviso de Operación</label>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="direccionEstablecimiento">Dirección del Establecimiento:</label>
-      <input type="text" id="direccionEstablecimiento" name="direccionEstablecimiento" required class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="apartadoEstablecimiento">Apartado del Establecimiento:</label>
-      <input type="number" id="apartadoEstablecimiento" name="apartadoEstablecimiento" required class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="telefonoPrincipal">Teléfono Principal:</label>
-      <input type="text" id="telefonoPrincipal" name="telefonoPrincipal" required class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="telefonoAlterno">Teléfono Alterno:</label>
-      <input type="text" id="telefonoAlterno" name="telefonoAlterno" required class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="celular">Celular:</label>
-      <input type="text" id="celular" name="celular" required class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="fax">Fax:</label>
-      <input type="text" id="fax" name="fax" required class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="correoElectronico">Correo Electrónico:</label>
-      <input type="email" id="correoElectronico" name="correoElectronico" required class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="paginaWeb">Página Web:</label>
-      <input type="url" id="paginaWeb" name="paginaWeb" required class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="agenciaSolicitudInscripcion">Agencia de Solicitud de Inscripción:</label>
-      <input type="text" id="agenciaSolicitudInscripcion" name="agenciaSolicitudInscripcion" required class="form-control">
-    </div>
-    <div class="form-group">
-      <label for="numeroAvisoOperacion">Número de Aviso de Operación:</label>
-      <input type="number" id="numeroAvisoOperacion" name="numeroAvisoOperacion" required class="form-control">
-    </div>
-    <div class="form-group">
-      <button type="submit" class="btn btn-primary">Enviar</button>
+    <div class="row">
+      <div class="input-field col s12">
+        <button type="submit" class="waves-effect waves-light btn" id="submitButton"><i class="material-icons left">send</i>Enviar</button>
+        <div class="progress" id="loader" style="display:none;">
+          <div class="indeterminate"></div>
+        </div>
+      </div>
     </div>
   </form>
 </div>
+
+<!-- Agregar scripts de Materialize -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script>
+  document.getElementById('empleadorForm').addEventListener('submit', function() {
+    document.getElementById('submitButton').setAttribute('disabled', 'true');
+    document.getElementById('loader').style.display = 'block';
+  });
+</script>
 </body>
 </html>

@@ -39,9 +39,7 @@ public class EmpleadorService {
     @Autowired
     private ITesseract tesseract;
     @Autowired
-    private KafkaConfig kafkaConfig;
-    @Autowired
-    private KafkaTemplate<String, Empleador> kafkaTemplate;
+    private KafkaTemplate<String, String> kafkaTemplate; // Inyectado desde KafkaConfig
     @Autowired
     private PipelineService pipelineService;
     @Value("${minion.endpoint}")
@@ -53,13 +51,11 @@ public class EmpleadorService {
             UUID empleadorId = UUID.randomUUID();
             String pdfName = empleadorId + "-" + pdfFile.getOriginalFilename();
             String jsonName = pdfName.replace(".pdf", ".json");
-            //String folderName = transformFolderName(empleador.getNombreComercial());
             String folderName = transformFolderName(empleador.getNombreComercial()+"-"+empleadorId.toString());
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(folderName).build());
             Path tempJsonPath = Files.createTempFile("temp-json", ".json");
             String inputString = PdfUtils.processPDFDocument(pdfFile.getInputStream());
             JSONObject jsonObject = new JSONObject();
-           // String jsonString = jsonObject.toString();
             try (FileWriter fileWriter = new FileWriter(tempJsonPath.toFile())) {
                 fileWriter.write( PdfUtils.convertToJSON(inputString) );
             }
@@ -81,7 +77,6 @@ public class EmpleadorService {
 
             String pdfUrl = minionEndpoint + "/" + minionBucketName + "/" + pdfName;
             String jsonUrl = minionEndpoint + "/" + minionBucketName + "/" + jsonName;
-           // String ocrResult = procesarPDF(pdfFile.getInputStream());
             String ocrResult = PdfUtils.processPDFDocument(pdfFile.getInputStream());
             Logger.getLogger(EmpleadorService.class.getName()).info("Texto extraído del PDF: " + ocrResult);
             Instant now = Instant.now();
@@ -90,7 +85,17 @@ public class EmpleadorService {
             empleador.setMetadatosDocumento(ocrResult);
             EmpleadorUtils.setearAtributosEmpleador(empleador);
             empleadorRepository.save(empleador);
-            pipelineService.ejecutarPipeline(ocrResult, empleadorId);
+            // Enviar a Kafka
+           // String kafkaMessage =  empleadorId.toString(); // Concatenar los argumentos
+            String text =  ocrResult; // Concatenar los argumentos
+            String id =  empleadorId.toString(); // Concatenar los argumentos
+
+
+            kafkaTemplate.send("topic-pipeline", text);
+            kafkaTemplate.send("topic-job", id);
+
+
+            //pipelineService.ejecutarPipeline(ocrResult, empleadorId);
             return empleador;
         } catch (Exception e) {
             Logger.getLogger("Error al procesar y guardar el empleador: " + e.getMessage());
@@ -100,6 +105,7 @@ public class EmpleadorService {
     private String transformFolderName(String nombreComercial) {
         return nombreComercial.replaceAll("\\s+", "-").toLowerCase();
     }
+
     private String procesarPDF(InputStream pdfStream) throws Exception {
         try {Path tempPdfPath = Files.createTempFile("temp-pdf", ".pdf");
             Files.copy(pdfStream, tempPdfPath, StandardCopyOption.REPLACE_EXISTING);
@@ -115,3 +121,6 @@ public class EmpleadorService {
         }
     }
 }
+
+
+
