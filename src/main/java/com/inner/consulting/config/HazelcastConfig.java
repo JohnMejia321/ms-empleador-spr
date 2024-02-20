@@ -13,7 +13,7 @@ public class HazelcastConfig {
     @Bean
     public HazelcastInstance hazelcastClient() {
         ClientConfig clientConfig = new ClientConfig();
-        clientConfig.setClusterName("cluster-prueba"); // Establece el nombre del cluster externo
+      //  clientConfig.setClusterName("cluster-prueba"); // Establece el nombre del cluster externo
         return HazelcastClient.newHazelcastClient(clientConfig);
     }
 }

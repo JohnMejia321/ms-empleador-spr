@@ -67,7 +67,7 @@ public class PipelineService {
             ));
             jsonEntries.writeTo(Sinks.observable("results"));
             jsonEntries.writeTo(Sinks.logger());
-            jsonEntries.writeTo(Sinks.map("jsonMap"));
+            jsonEntries.writeTo(Sinks.map("jsonMapa"));
 
             hazelcastInstance.getList("sourceList").clear(); // Limpiar lista
             hazelcastInstance.getList("sourceList").add(ocrResult); // Agregar elemento a la lista

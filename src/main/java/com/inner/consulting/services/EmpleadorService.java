@@ -91,11 +91,11 @@ public class EmpleadorService {
             String id =  empleadorId.toString(); // Concatenar los argumentos
 
 
-            kafkaTemplate.send("topic-pipeline", text);
+          kafkaTemplate.send("topic-pipeline", text);
             kafkaTemplate.send("topic-job", id);
 
 
-            //pipelineService.ejecutarPipeline(ocrResult, empleadorId);
+        //    pipelineService.ejecutarPipeline(ocrResult, empleadorId);
             return empleador;
         } catch (Exception e) {
             Logger.getLogger("Error al procesar y guardar el empleador: " + e.getMessage());
