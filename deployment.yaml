@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inscripcion-empleador-deployment
+spec:
+  replicas: 1  # Cambia este valor según tus necesidades de escalabilidad
+  selector:
+    matchLabels:
+      app: inscripcion-empleador
+  template:
+    metadata:
+      labels:
+        app: inscripcion-empleador
+    spec:
+      containers:
+      - name: inscripcion-empleador
+        image: johnmejia9887654321/inscripcion-empleador:latest  # Utiliza tu imagen Docker desde Docker Hub
+        ports:
+        - containerPort: 8082
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inscripcion-empleador-service
+spec:
+  selector:
+    app: inscripcion-empleador
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082
+  type: LoadBalancer  # Cambio aquí para utilizar NodePort

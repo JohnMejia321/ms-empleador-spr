@@ -139,6 +139,11 @@ public class Empleador {
 
     public Empleador(UUID uuid, String pdfUrl, String metadatosDocumento,
                      String fechaSolicitud, String tipoInscripcion) {
+        this.id = uuid;
+        this.pdfUrl = pdfUrl;
+        this.metadatosDocumento = metadatosDocumento;
+        this.fechaSolicitud = fechaSolicitud;
+        this.tipoInscripcion = tipoInscripcion;
     }
 
 }

@@ -10,17 +10,20 @@ class EmpleadorTest {
     @Test
     void testEmpleadorConstructor() {
         // Arrange
-        String pdfUrl = "example.com/test.pdf";
-        String metadatosDocumento = "Some metadata";
+        String pdfUrl = "localhost://:9000/test.pdf";
+        String metadatosDocumento = "metadata mockeada";
         String fechaSolicitud = "2024-01-30";
         String tipoInscripcion = "Some tipoInscripcion";
         Empleador empleador = new Empleador(UUID.randomUUID(), pdfUrl, metadatosDocumento,
                 fechaSolicitud, tipoInscripcion);
+        String pdfPrueba= "localhost://:9000/test.pdf";
+        String fechaSolicitudTest= "2024-01-30";
+        String metadataMockeada = "metadata mockeada";
         assertNotNull(empleador);
-        assertEquals(pdfUrl, empleador.getPdfUrl());
-        assertEquals(metadatosDocumento, empleador.getMetadatosDocumento());
+        assertEquals(pdfPrueba, empleador.getPdfUrl());
+       assertEquals(metadataMockeada, empleador.getMetadatosDocumento());
         assertEquals(fechaSolicitud, empleador.getFechaSolicitud());
-        assertEquals(tipoInscripcion, empleador.getTipoInscripcion());
+       assertEquals(tipoInscripcion, empleador.getTipoInscripcion());
     }
 
     @Test
