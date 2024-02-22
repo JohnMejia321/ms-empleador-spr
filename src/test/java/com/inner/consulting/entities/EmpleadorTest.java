@@ -14,7 +14,7 @@ class EmpleadorTest {
         String metadatosDocumento = "metadata mockeada";
         String fechaSolicitud = "2024-01-30";
         String tipoInscripcion = "Some tipoInscripcion";
-        Empleador empleador = new Empleador(UUID.randomUUID(), pdfUrl, metadatosDocumento,
+        Empleador empleador = new Empleador("sadad767ss", pdfUrl, metadatosDocumento,
                 fechaSolicitud, tipoInscripcion);
         String pdfPrueba= "localhost://:9000/test.pdf";
         String fechaSolicitudTest= "2024-01-30";

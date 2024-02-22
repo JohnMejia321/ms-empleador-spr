@@ -20,13 +20,13 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table("empleador2")
+@Table("empleador3")
 public class Empleador {
 
     @Id
     @PrimaryKeyColumn(name = "id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    @CassandraType(type = CassandraType.Name.UUID)
-    private UUID id;
+    @CassandraType(type = CassandraType.Name.TEXT)
+    private String id;
 
 //    @Column("nombre")
 //    @CassandraType(type = CassandraType.Name.TEXT)
@@ -137,7 +137,7 @@ public class Empleador {
     @Column("numero_aviso_operacion")
     private int numeroAvisoOperacion;
 
-    public Empleador(UUID uuid, String pdfUrl, String metadatosDocumento,
+    public Empleador(String uuid, String pdfUrl, String metadatosDocumento,
                      String fechaSolicitud, String tipoInscripcion) {
         this.id = uuid;
         this.pdfUrl = pdfUrl;

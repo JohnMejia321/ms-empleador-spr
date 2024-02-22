@@ -1,4 +1,4 @@
-package com.inner.consulting.config;
+/*package com.inner.consulting.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -17,4 +17,4 @@ public class DataStaxAstraProperties {
         this.secureConnectBundle = secureConnectBundle;
     }
 
-}
+}*/

@@ -1,8 +1,11 @@
 package com.inner.consulting.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.Observable;
 import com.hazelcast.shaded.org.json.JSONObject;
+import com.inner.consulting.config.EmpleadorClient;
 import com.inner.consulting.config.KafkaConfig;
 import com.inner.consulting.repositories.EmpleadorRepository;
 import com.inner.consulting.entities.Empleador;
@@ -13,8 +16,10 @@ import io.minio.PutObjectArgs;
 import net.sourceforge.tess4j.ITesseract;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileWriter;
@@ -46,9 +51,22 @@ public class EmpleadorService {
     private String minionEndpoint;
     @Value("${minion.bucketName}")
     private String minionBucketName;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
     public Empleador saveEmpleador(Empleador empleador, MultipartFile pdfFile) throws Exception {
         try {
-            UUID empleadorId = UUID.randomUUID();
+            ResponseEntity<String> responseEntity = restTemplate.getForEntity("http://localhost:8084/generatedId", String.class);
+            String empleadorIdRest = responseEntity.getBody();
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // Parsear el JSON
+            JsonNode jsonNode = objectMapper.readTree(empleadorIdRest);
+
+            // Obtener el valor del campo "id"
+            String idValue = jsonNode.get("id").asText();
+            String empleadorId = idValue;
             String pdfName = empleadorId + "-" + pdfFile.getOriginalFilename();
             String jsonName = pdfName.replace(".pdf", ".json");
             String folderName = transformFolderName(empleador.getNombreComercial()+"-"+empleadorId.toString());
