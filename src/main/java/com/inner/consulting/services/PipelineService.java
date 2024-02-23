@@ -1,3 +1,4 @@
+/*
 package com.inner.consulting.services;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -81,3 +82,4 @@ public class PipelineService {
         }
     }
 }
+*/

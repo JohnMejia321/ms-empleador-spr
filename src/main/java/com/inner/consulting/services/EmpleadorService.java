@@ -2,18 +2,13 @@ package com.inner.consulting.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hazelcast.jet.JetInstance;
-import com.hazelcast.jet.Observable;
 import com.hazelcast.shaded.org.json.JSONObject;
-import com.inner.consulting.config.EmpleadorClient;
-import com.inner.consulting.config.KafkaConfig;
 import com.inner.consulting.repositories.EmpleadorRepository;
 import com.inner.consulting.entities.Empleador;
 import com.inner.consulting.utils.PdfUtils;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
-import net.sourceforge.tess4j.ITesseract;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -41,12 +36,12 @@ public class EmpleadorService {
     private EmpleadorRepository empleadorRepository;
     @Autowired
     private MinioClient minioClient;
-    @Autowired
-    private ITesseract tesseract;
+
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate; // Inyectado desde KafkaConfig
-    @Autowired
-    private PipelineService pipelineService;
+
+   // @Autowired
+   // private PipelineService pipelineService;
     @Value("${minion.endpoint}")
     private String minionEndpoint;
     @Value("${minion.bucketName}")
@@ -55,7 +50,7 @@ public class EmpleadorService {
     @Autowired
     private RestTemplate restTemplate;
 
-    public Empleador saveEmpleador(Empleador empleador, MultipartFile pdfFile) throws Exception {
+    public Empleador saveEmpleador(Empleador empleador, MultipartFile pdfFile,MultipartFile documentoIdentidad) throws Exception {
         try {
             ResponseEntity<String> responseEntity = restTemplate.getForEntity("http://localhost:8084/generatedId", String.class);
             String empleadorIdRest = responseEntity.getBody();
@@ -68,6 +63,8 @@ public class EmpleadorService {
             String idValue = jsonNode.get("id").asText();
             String empleadorId = idValue;
             String pdfName = empleadorId + "-" + pdfFile.getOriginalFilename();
+            String pdfNameDocumentoIdentidad = empleadorId + "-" + documentoIdentidad.getOriginalFilename();
+
             String jsonName = pdfName.replace(".pdf", ".json");
             String folderName = transformFolderName(empleador.getNombreComercial()+"-"+empleadorId.toString());
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(folderName).build());
@@ -93,6 +90,14 @@ public class EmpleadorService {
                             .contentType(pdfFile.getContentType())
                             .build());
 
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(folderName)
+                            .object(pdfNameDocumentoIdentidad)
+                            .stream(documentoIdentidad.getInputStream(), documentoIdentidad.getSize(), -1)
+                            .contentType(documentoIdentidad.getContentType())
+                            .build());
+
             String pdfUrl = minionEndpoint + "/" + minionBucketName + "/" + pdfName;
             String jsonUrl = minionEndpoint + "/" + minionBucketName + "/" + jsonName;
             String ocrResult = PdfUtils.processPDFDocument(pdfFile.getInputStream());
@@ -107,13 +112,9 @@ public class EmpleadorService {
            // String kafkaMessage =  empleadorId.toString(); // Concatenar los argumentos
             String text =  ocrResult; // Concatenar los argumentos
             String id =  empleadorId.toString(); // Concatenar los argumentos
-
-
-          kafkaTemplate.send("topic-pipeline", text);
+            kafkaTemplate.send("topic-pipeline", text);
             kafkaTemplate.send("topic-job", id);
-
-
-        //    pipelineService.ejecutarPipeline(ocrResult, empleadorId);
+            //    pipelineService.ejecutarPipeline(ocrResult, empleadorId);
             return empleador;
         } catch (Exception e) {
             Logger.getLogger("Error al procesar y guardar el empleador: " + e.getMessage());
@@ -124,20 +125,6 @@ public class EmpleadorService {
         return nombreComercial.replaceAll("\\s+", "-").toLowerCase();
     }
 
-    private String procesarPDF(InputStream pdfStream) throws Exception {
-        try {Path tempPdfPath = Files.createTempFile("temp-pdf", ".pdf");
-            Files.copy(pdfStream, tempPdfPath, StandardCopyOption.REPLACE_EXISTING);
-            File pdfFile = tempPdfPath.toFile();
-            String ocrResult = tesseract.doOCR(pdfFile);
-            byte[] bytes = ocrResult.getBytes(StandardCharsets.UTF_8);
-            ocrResult = new String(bytes, Charset.defaultCharset());
-            Files.delete(tempPdfPath);
-            return ocrResult;
-        } catch (Exception e) {
-            Logger.getLogger("Error al procesar el PDF: " + e.getMessage());
-            throw e;
-        }
-    }
 }
 
 

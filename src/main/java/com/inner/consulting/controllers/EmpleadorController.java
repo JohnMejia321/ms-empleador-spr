@@ -18,9 +18,10 @@ public class EmpleadorController {
     @PostMapping("/agregar-empleador")
     public String saveEmpleador(@ModelAttribute Empleador empleador,
                                 @RequestParam("pdfFile") MultipartFile pdfFile,
+                                @RequestParam("documentoIdentidad") MultipartFile documentoIdentidad,
                                 Model model) {
         try {
-            Empleador empleadorGuardado = empleadorService.saveEmpleador(empleador, pdfFile);
+            Empleador empleadorGuardado = empleadorService.saveEmpleador(empleador, pdfFile,documentoIdentidad);
             model.addAttribute("empleador", empleadorGuardado);
             return "success";
         } catch (Exception e) {

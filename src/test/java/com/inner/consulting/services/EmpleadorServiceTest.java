@@ -61,13 +61,13 @@ public class EmpleadorServiceTest {
 
 // Configura el comportamiento del mock para que devuelva un Empleador
         Empleador empleador = new Empleador();
-        Mockito.when(empleadorService.saveEmpleador(Mockito.any(), Mockito.any())).thenReturn(empleador);
+        Mockito.when(empleadorService.saveEmpleador(Mockito.any(), Mockito.any(),Mockito.any())).thenReturn(empleador);
 
 // Llama al método bajo prueba
-        Empleador result = empleadorService.saveEmpleador(empleador, multipartFileMock);
+        Empleador result = empleadorService.saveEmpleador(empleador, multipartFileMock,multipartFileMock);
 
 // Verifica que el método se llamó correctamente con los argumentos esperados
-        Mockito.verify(empleadorService).saveEmpleador(empleador, multipartFileMock);
+        Mockito.verify(empleadorService).saveEmpleador(empleador, multipartFileMock,multipartFileMock);
 
 // Verifica que el resultado no sea nulo
         assertNotNull(result);

@@ -1,3 +1,4 @@
+/*
 package com.inner.consulting.config;
 
 import com.hazelcast.client.HazelcastClient;
@@ -18,3 +19,4 @@ public class HazelcastConfig {
     }
 }
 
+*/

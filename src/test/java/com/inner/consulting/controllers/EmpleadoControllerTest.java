@@ -30,13 +30,15 @@ public class EmpleadoControllerTest {
     public void testSaveEmpleador() throws Exception {
         Empleador empleador = new Empleador();
         MockMultipartFile pdfFile = new MockMultipartFile("pdfFile", "hello.pdf", "application/pdf", "PDF content".getBytes());
+        MockMultipartFile pdfFileDocumento = new MockMultipartFile("pdfFile", "hello.pdf", "application/pdf", "PDF content".getBytes());
+
         Model model = mock(Model.class);
 
-        when(empleadorService.saveEmpleador(any(Empleador.class), any(MultipartFile.class))).thenReturn(empleador);
+        when(empleadorService.saveEmpleador(any(Empleador.class), any(MultipartFile.class),any(MultipartFile.class))).thenReturn(empleador);
 
-        String viewName = empleadorController.saveEmpleador(empleador, pdfFile, model);
+        String viewName = empleadorController.saveEmpleador(empleador, pdfFile,pdfFileDocumento , model);
 
-        verify(empleadorService, times(1)).saveEmpleador(any(Empleador.class), any(MultipartFile.class));
+        verify(empleadorService, times(1)).saveEmpleador(any(Empleador.class), any(MultipartFile.class),any(MultipartFile.class));
         verify(model, times(1)).addAttribute("empleador", empleador);
         assert(viewName.equals("success"));
     }
